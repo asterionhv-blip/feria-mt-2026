@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+<title>Recorrido Feria MT 2026</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  /* Layout: escenario 16:9 escalado con lenguaje de señalética (plano del colegio, líneas de color por estación) y barra de reproducción debajo. Look único y deliberado: papel frío sobre marco azul noche. */
+  :root{
+    --frame:#0F1B2D; --frame-ink:#D9E1EB; --frame-muted:#8494A8; --frame-line:#24344B;
+    --paper:#EDF0F3; --panel:#FFFFFF; --ink:#13233A; --muted:#56677D; --rule:#C6CFDA; --grid:rgba(19,35,58,.05);
+    --sw:#1D5FD0; --aa:#7B3FC2; --vl:#0C8A5E; --cd:#DF561C; --pause:#E9AC17;
+    --display:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
+    --body:'Barlow','Segoe UI',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+    --ease:cubic-bezier(.2,.8,.2,1);
+    color-scheme:dark;
+  }
+  html,body{height:100%}
+  body{background:var(--frame);color:var(--frame-ink);font-family:var(--body);overflow:hidden}
+  .app{height:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:10px;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .screen{flex:1;min-height:0;position:relative;overflow:hidden}
+  .stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;border-radius:14px;color:var(--ink);
+    background-color:var(--paper);
+    background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:48px 48px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+  /* Cabecera fija del escenario */
+  .s-head{position:absolute;left:130px;right:130px;top:44px;display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:19px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);z-index:3}
+  .s-head .brand{display:flex;align-items:center;gap:14px}
+  .s-head .dots{display:flex;gap:5px}
+  .s-head .dots i{width:12px;height:12px;border-radius:3px;display:block}
+
+  /* Escenas */
+  .scene{position:absolute;inset:0;padding:130px 130px 90px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;opacity:0;visibility:hidden;transition:opacity .55s var(--ease),visibility .55s}
+  .scene.on{opacity:1;visibility:visible}
+  .scene.on .a{animation:rise .85s var(--ease) both;animation-delay:var(--d,0s)}
+  @keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+  @keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+  @keyframes growx{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+  .eyebrow{font-family:var(--mono);font-size:22px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 22px;display:flex;align-items:center;gap:14px}
+  .eyebrow::before{content:"";width:36px;height:3px;background:var(--ink);border-radius:2px}
+  h1,h2,h3{margin:0;font-family:var(--display);text-wrap:balance;letter-spacing:-.005em}
+  h1{font-size:144px;line-height:.9;font-weight:700;text-transform:uppercase}
+  h2{font-size:86px;line-height:.98;font-weight:700}
+  h2.md{font-size:70px}
+  .lede{font-size:33px;line-height:1.42;color:#2C3D55;max-width:1100px;margin:28px 0 0}
+  .lede b{color:var(--ink);font-weight:700}
+  .badge{--c:var(--ink);flex:0 0 auto;width:66px;height:66px;border-radius:12px;background:var(--c);color:#fff;font:700 42px/1 var(--display);display:grid;place-items:center}
+  .badge.sm{width:52px;height:52px;font-size:32px;border-radius:10px}
+  .badge.flag svg{width:30px;height:30px}
+
+  /* 1 · Portada */
+  .cover{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:90px;align-items:center}
+  .cover .meta{display:flex;gap:16px;margin-top:44px;flex-wrap:wrap}
+  .pill{font-family:var(--mono);font-size:23px;font-weight:600;padding:12px 20px;border-radius:999px;background:var(--panel);border:1.5px solid var(--rule)}
+  .pill.dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .line{position:relative;display:flex;flex-direction:column;gap:34px;padding:10px 0}
+  .line .rail{position:absolute;left:31px;top:40px;bottom:40px;width:6px;border-radius:3px;background:linear-gradient(var(--sw),var(--aa) 33%,var(--vl) 66%,var(--cd) 90%,var(--ink));transform-origin:top}
+  .scene.on .line .rail{animation:grow 1.6s var(--ease) .5s both}
+  .stop{position:relative;display:flex;align-items:center;gap:26px}
+  .stop strong{display:block;font:700 40px/1.05 var(--display)}
+  .stop span.l{display:block;font-size:22px;color:var(--muted);margin-top:4px}
+
+  /* 2 · Propósito */
+  .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:64px}
+  .fact{background:var(--panel);border:1.5px solid var(--rule);border-radius:14px;padding:30px 30px 28px}
+  .fact .n{font:700 76px/1 var(--display)}
+  .fact .n small{font-size:40px;margin-left:4px}
+  .fact p{margin:12px 0 0;font-size:23px;line-height:1.35;color:var(--muted)}
+
+  /* 3 · Estaciones */
+  .stations{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:56px}
+  .st{background:var(--panel);border:1.5px solid var(--rule);border-radius:14px;padding:30px;display:flex;flex-direction:column;gap:20px;min-height:330px;box-sizing:border-box}
+  .st h3{font-size:46px;line-height:1;font-weight:700}
+  .st .floor{font-family:var(--mono);font-size:20px;letter-spacing:.1em;text-transform:uppercase;color:var(--c);font-weight:600}
+  .st p{margin:0;font-size:24px;line-height:1.35;color:var(--muted)}
+  .st .foot{margin-top:auto;display:flex;align-items:center;gap:10px;font-size:20px;color:var(--muted)}
+  .note{margin-top:34px;display:flex;align-items:center;gap:16px;font-size:26px;color:#2C3D55}
+  .note .tag{font-family:var(--mono);font-size:18px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;background:var(--cd);color:#fff;padding:7px 12px;border-radius:7px}
+
+  /* 4 · Ruta */
+  .route-grid{display:grid;grid-template-columns:1120px 1fr;gap:44px;margin-top:26px;align-items:start}
+  .map{width:1120px;height:auto;display:block}
+  .map .flr{fill:#F8FAFB;stroke:var(--rule);stroke-width:2}
+  .map .ftag{font:600 17px var(--mono);letter-spacing:.14em;fill:var(--muted)}
+  .map .room{stroke-width:2}
+  .map .rname{font:700 25px var(--display);fill:var(--ink)}
+  .map .rsub{font:500 16px var(--body);fill:var(--muted)}
+  .map .corr{stroke:var(--rule);stroke-width:2;stroke-dasharray:4 8}
+  .map .stair{fill:url(#steps);stroke:var(--muted);stroke-width:1.5}
+  .map .slab{font:600 14px var(--mono);letter-spacing:.08em;fill:var(--ink)}
+  .map .base{fill:none;stroke:#AEB9C6;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 11}
+  .map .trail{fill:none;stroke:var(--ink);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+  .map .mk circle{fill:#fff;stroke:var(--c);stroke-width:5;transition:fill .35s}
+  .map .mk text{font:700 22px var(--display);fill:var(--c);text-anchor:middle;dominant-baseline:central;transition:fill .35s}
+  .map .mk.hit circle{fill:var(--c)}
+  .map .mk.hit text{fill:#fff}
+  .map .pulse{fill:none;stroke:var(--ink);stroke-width:3;opacity:.5;transform-box:fill-box;transform-origin:center;animation:pulse 1.6s ease-out infinite}
+  @keyframes pulse{from{transform:scale(1);opacity:.55}to{transform:scale(2.6);opacity:0}}
+  .map .scale{font:500 15px var(--body);fill:var(--muted)}
+  .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+  .steps li{display:grid;grid-template-columns:52px 1fr;gap:18px;padding:16px 18px;border-radius:12px;border:1.5px solid transparent;opacity:.4;transition:opacity .4s,background .4s,border-color .4s}
+  .steps li.done{opacity:.72}
+  .steps li.on{opacity:1;background:var(--panel);border-color:var(--rule);box-shadow:0 10px 30px rgba(19,35,58,.08)}
+  .steps strong{display:block;font:700 30px/1.05 var(--display)}
+  .steps p{margin:6px 0 0;font-size:20px;line-height:1.38;color:#3A4B62}
+
+  /* 5 y 7 · Bloques */
+  .blk-head{display:flex;justify-content:space-between;align-items:flex-end;gap:40px}
+  .groups{display:flex;gap:12px;margin-top:26px}
+  .grp{font:700 40px/1 var(--display);padding:12px 22px;border-radius:12px;background:var(--ink);color:#fff}
+  .clock{text-align:right}
+  .clock .t{font-family:var(--mono);font-size:104px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+  .clock .t small{font-size:36px;color:var(--muted);margin-left:8px}
+  .clock .lbl{font-family:var(--mono);font-size:18px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .tl{margin-top:58px;position:relative}
+  .tl-track{display:flex;gap:6px;height:96px;position:relative}
+  .seg{position:relative;border-radius:10px;background:color-mix(in srgb,var(--c) 14%,#fff);border:2px solid color-mix(in srgb,var(--c) 45%,#fff);overflow:hidden}
+  .seg i{position:absolute;inset:0;background:var(--c);transform-origin:left;transform:scaleX(var(--f,0))}
+  .seg .seg-n{position:absolute;left:18px;top:50%;transform:translateY(-50%);font:700 44px/1 var(--display);color:#fff;mix-blend-mode:normal;z-index:1;text-shadow:0 0 0 transparent}
+  .seg:not(.lit) .seg-n{color:var(--c)}
+  .cursor{position:absolute;top:-22px;bottom:-22px;width:4px;margin-left:-2px;background:var(--ink);border-radius:2px;left:0;z-index:2}
+  .cursor::before{content:"";position:absolute;top:-10px;left:50%;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:var(--ink)}
+  .tl-labels{display:flex;gap:6px;margin-top:34px}
+  .lab{display:flex;flex-direction:column;gap:6px;padding-left:4px;opacity:.55;transition:opacity .4s}
+  .lab.lit{opacity:1}
+  .lab b{font-size:24px;color:var(--c)}
+  .lab strong{font:700 34px/1.05 var(--display)}
+  .lab span{font-size:20px;color:var(--muted)}
+  .blk-foot{margin-top:46px;font-size:26px;color:#2C3D55;display:flex;gap:14px;align-items:center}
+  .blk-foot svg{flex:0 0 auto}
+
+  /* 6 · Descanso */
+  .pause{display:grid;grid-template-columns:auto 1fr;gap:100px;align-items:center}
+  .ring{width:420px;height:420px;position:relative}
+  .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .ring .bg{fill:none;stroke:color-mix(in srgb,var(--pause) 22%,#fff);stroke-width:26}
+  .ring .fg{fill:none;stroke:var(--pause);stroke-width:26;stroke-linecap:round}
+  .ring .c{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+  .ring .c b{display:block;font:700 150px/1 var(--display)}
+  .ring .c span{font-family:var(--mono);font-size:22px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .pause .time{font-family:var(--mono);font-size:44px;font-weight:600;margin:24px 0 0}
+  .handoff{display:grid;grid-template-columns:1fr auto 1fr;gap:22px;align-items:center;margin-top:44px;max-width:1040px}
+  .handoff .card{background:var(--panel);border:1.5px solid var(--rule);border-radius:14px;padding:24px 26px}
+  .handoff .card small{font-family:var(--mono);font-size:17px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .handoff .card p{margin:8px 0 0;font-size:24px;line-height:1.35}
+
+  /* 8 · Jornada completa */
+  .gantt{display:grid;grid-template-columns:330px 1fr;margin-top:50px}
+  .g-labels{display:flex;flex-direction:column}
+  .g-lab{height:100px;display:flex;align-items:center;gap:18px;font:700 32px/1.02 var(--display);border-top:1.5px solid var(--rule)}
+  .g-plot{position:relative}
+  .g-row{height:100px;position:relative;border-top:1.5px solid var(--rule)}
+  .g-tick{position:absolute;top:0;bottom:46px;width:0;border-left:1.5px dashed var(--rule)}
+  .g-axis{position:relative;height:46px}
+  .g-axis span{position:absolute;top:14px;transform:translateX(-50%);font-family:var(--mono);font-size:19px;color:var(--muted)}
+  .g-band{position:absolute;top:0;bottom:46px;background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--pause) 30%,transparent) 0 10px,color-mix(in srgb,var(--pause) 12%,transparent) 10px 20px);border-left:2px solid var(--pause);border-right:2px solid var(--pause);display:flex;align-items:flex-start;justify-content:center}
+  .g-band b{margin-top:-40px;font-family:var(--mono);font-size:18px;letter-spacing:.1em;text-transform:uppercase;color:#8A6408;white-space:nowrap}
+  .bar{position:absolute;top:20px;height:60px;border-radius:9px;background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:18px;font-weight:600;white-space:nowrap;transform-origin:left;z-index:1}
+  .scene.on .bar{animation:growx .7s var(--ease) both;animation-delay:var(--d)}
+  .bar.b2{background:repeating-linear-gradient(90deg,var(--c) 0 100%);box-shadow:inset 0 0 0 3px rgba(255,255,255,.35)}
+  .legend{display:flex;gap:34px;margin-top:30px;font-size:22px;color:var(--muted);flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:12px}
+  .legend i{width:34px;height:18px;border-radius:5px;display:block}
+
+  /* 9 · Recomendaciones */
+  .recs{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:54px}
+  .rec{display:grid;grid-template-columns:76px 1fr;gap:26px;background:var(--panel);border:1.5px solid var(--rule);border-radius:14px;padding:32px}
+  .rec .ic{width:76px;height:76px;border-radius:14px;background:var(--ink);display:grid;place-items:center}
+  .rec h3{font-size:42px;line-height:1;font-weight:700}
+  .rec p{margin:10px 0 0;font-size:24px;line-height:1.4;color:#3A4B62}
+
+  /* 10 · Ficha resumen */
+  .sheet{margin-top:40px;width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);border:1.5px solid var(--rule);border-radius:14px;overflow:hidden}
+  .sheet th{text-align:left;font-family:var(--mono);font-size:18px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:22px 28px;border-bottom:1.5px solid var(--rule);background:#F6F8FA}
+  .sheet th b{display:block;font-family:var(--display);font-size:30px;letter-spacing:0;text-transform:none;color:var(--ink);margin-top:4px}
+  .sheet td{padding:20px 28px;border-bottom:1.5px solid var(--rule);font-size:24px;vertical-align:middle}
+  .sheet tr:last-child td{border-bottom:none}
+  .sheet .stn{display:flex;align-items:center;gap:18px;font:700 34px/1 var(--display)}
+  .sheet .loc{color:var(--muted);font-size:22px}
+  .sheet .hr{font-family:var(--mono);font-size:28px;font-weight:600;font-variant-numeric:tabular-nums}
+  .sheet tr.brk td{background:color-mix(in srgb,var(--pause) 16%,#fff);font-weight:600}
+  .sheet tr.brk .hr{color:#8A6408}
+
+  /* 11 · Cierre */
+  .end{align-items:flex-start}
+  .end .stripe{display:flex;gap:10px;margin-bottom:46px}
+  .end .stripe i{width:120px;height:14px;border-radius:7px;display:block;transform-origin:left}
+  .scene.on .end-stripe i{animation:growx .8s var(--ease) both}
+
+  /* Barra de reproducción */
+  .bar-ctl{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:6px 4px calc(2px + env(safe-area-inset-bottom,0px))}
+  .btn{flex:0 0 auto;width:44px;height:44px;border-radius:10px;border:1px solid var(--frame-line);background:#16253B;color:var(--frame-ink);display:grid;place-items:center;cursor:pointer;transition:border-color .2s,color .2s}
+  .btn:hover{border-color:var(--pause);color:#fff}
+  .btn:focus-visible,.chap:focus-visible{outline:2px solid var(--pause);outline-offset:2px}
+  .btn.main{width:52px;height:52px;border-radius:50%;background:var(--pause);color:var(--frame);border-color:var(--pause)}
+  .chapters{flex:1;min-width:0;display:flex;gap:4px;align-items:center;height:44px}
+  .chap{flex-basis:0;min-width:6px;height:8px;border:none;padding:0;border-radius:4px;background:var(--frame-line);cursor:pointer;position:relative;overflow:hidden}
+  .chap:hover{height:12px}
+  .chap i{position:absolute;inset:0;background:var(--frame-ink);transform-origin:left;transform:scaleX(var(--f,0))}
+  .chap.cur i{background:var(--pause)}
+  .now{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;min-width:0;max-width:280px}
+  .now b{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .now span{font-family:var(--mono);font-size:12px;color:var(--frame-muted);font-variant-numeric:tabular-nums}
+
+  /* Modo vertical (celulares): lienzo 900 × 1600 */
+  .stage.pt .s-head{left:60px;right:60px;top:54px;font-size:20px}
+  .stage.pt .scene{padding:150px 60px 90px}
+  .stage.pt h1{font-size:94px}
+  .stage.pt h2{font-size:76px}
+  .stage.pt h2.md{font-size:64px}
+  .stage.pt .lede{font-size:36px}
+  .stage.pt .eyebrow{font-size:24px}
+  .stage.pt .cover{grid-template-columns:1fr;gap:70px}
+  .stage.pt .pill{font-size:26px}
+  .stage.pt .line{gap:26px}
+  .stage.pt .stop strong{font-size:42px}
+  .stage.pt .stop span.l{font-size:26px}
+  .stage.pt .facts{grid-template-columns:1fr 1fr;gap:20px;margin-top:50px}
+  .stage.pt .fact p{font-size:28px}
+  .stage.pt .stations{grid-template-columns:1fr 1fr;gap:20px;margin-top:44px}
+  .stage.pt .st{min-height:0;padding:26px;gap:14px}
+  .stage.pt .st h3{font-size:42px}
+  .stage.pt .st p{font-size:27px}
+  .stage.pt .st .floor{font-size:21px}
+  .stage.pt .note{font-size:30px;align-items:flex-start}
+  .stage.pt .route-grid{grid-template-columns:1fr;gap:30px;margin-top:20px}
+  .stage.pt .map{width:100%}
+  .stage.pt .steps li{padding:12px 16px}
+  .stage.pt .steps li:not(.on) p{display:none}
+  .stage.pt .steps strong{font-size:34px}
+  .stage.pt .steps p{font-size:27px}
+  .stage.pt .blk-head{flex-direction:column;align-items:flex-start;gap:26px}
+  .stage.pt .clock{text-align:left}
+  .stage.pt .clock .t{font-size:88px}
+  .stage.pt .tl{display:grid;grid-template-columns:120px 1fr;gap:34px;margin-top:40px}
+  .stage.pt .tl-track{flex-direction:column;height:820px;width:120px}
+  .stage.pt .seg i{transform-origin:top;transform:scaleY(var(--f,0))}
+  .stage.pt .seg .seg-n{left:50%;top:18px;transform:translateX(-50%)}
+  .stage.pt .cursor{bottom:auto;left:-18px!important;right:-18px;width:auto;height:4px;margin:-2px 0 0}
+  .stage.pt .cursor::before{top:50%;left:-10px;margin:-10px 0 0}
+  .stage.pt .tl-labels{flex-direction:column;margin-top:0;height:820px}
+  .stage.pt .lab{justify-content:center;padding-left:0}
+  .stage.pt .lab b{font-size:28px}
+  .stage.pt .lab strong{font-size:40px}
+  .stage.pt .lab span{font-size:25px}
+  .stage.pt .blk-foot{font-size:29px;align-items:flex-start;margin-top:40px}
+  .stage.pt .pause{grid-template-columns:1fr;gap:50px}
+  .stage.pt .ring{width:380px;height:380px}
+  .stage.pt .pause .time{font-size:46px}
+  .stage.pt .handoff{grid-template-columns:1fr;gap:16px}
+  .stage.pt .arw svg{transform:rotate(90deg)}
+  .stage.pt .handoff .card p{font-size:29px}
+  .stage.pt .handoff .card small{font-size:20px}
+  .stage.pt .gantt{grid-template-columns:250px 1fr;margin-top:70px}
+  .stage.pt .g-lab{height:120px;font-size:30px;gap:14px}
+  .stage.pt .g-row{height:120px}
+  .stage.pt .bar{font-size:0;top:28px;height:64px}
+  .stage.pt .bar.b2{background:color-mix(in srgb,var(--c) 40%,#fff);box-shadow:inset 0 0 0 3px var(--c)}
+  .stage.pt .sw2{background:color-mix(in srgb,var(--ink) 35%,#fff)!important;box-shadow:inset 0 0 0 3px var(--ink)!important}
+  .stage.pt .g-axis span{font-size:20px}
+  .stage.pt .g-band b{font-size:20px}
+  .stage.pt .legend{flex-direction:column;gap:16px;font-size:28px;margin-top:40px}
+  .stage.pt .recs{grid-template-columns:1fr;gap:18px;margin-top:40px}
+  .stage.pt .rec{padding:26px;grid-template-columns:70px 1fr;gap:22px}
+  .stage.pt .rec .ic{width:70px;height:70px}
+  .stage.pt .rec h3{font-size:40px}
+  .stage.pt .rec p{font-size:27px}
+  .stage.pt .sheet,.stage.pt .sheet tbody{display:block}
+  .stage.pt .sheet thead{display:none}
+  .stage.pt .sheet tr{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;padding:22px 26px;border-bottom:1.5px solid var(--rule)}
+  .stage.pt .sheet tr:last-child{border-bottom:none}
+  .stage.pt .sheet td{display:block;padding:0;border:none;background:none!important}
+  .stage.pt .sheet td:first-child,.stage.pt .sheet td.loc{grid-column:1/-1}
+  .stage.pt .sheet .stn{font-size:38px}
+  .stage.pt .sheet .loc{font-size:26px}
+  .stage.pt .sheet .hr{font-size:32px}
+  .stage.pt .sheet .hr[data-l]::before{content:attr(data-l);display:block;font-family:var(--mono);font-size:18px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
+  .stage.pt .sheet tr.brk{background:color-mix(in srgb,var(--pause) 16%,#fff);align-items:center}
+  .stage.pt .sheet tr.brk td:first-child{grid-column:auto;font-size:28px}
+  .stage.pt .end h1{font-size:96px!important}
+  .stage.pt .end .stripe i{width:90px}
+  .arw{display:grid;place-items:center}
+  @media (max-width:640px){.now{display:none}.btn.hide-s{display:none}.bar-ctl{gap:8px}}
+  @media (prefers-reduced-motion:reduce){
+    .scene.on .a{animation:fadeonly .4s both}
+    @keyframes fadeonly{from{opacity:0}to{opacity:1}}
+    .map .pulse{animation:none;opacity:0}
+  }
+</style>
+
+</head>
+<body>
+<div class="app" id="app">
+  <div class="screen" id="screen">
+    <div class="stage" id="stage">
+
+      <div class="s-head">
+        <span class="brand"><span class="dots"><i style="background:var(--sw)"></i><i style="background:var(--aa)"></i><i style="background:var(--vl)"></i><i style="background:var(--cd)"></i></span>Feria MT · Proyectos Institucionales 2026</span>
+        <span id="sceneNo">01 / 11</span>
+      </div>
+
+      <!-- 1 · Portada -->
+      <section class="scene on" data-dur="9" data-title="Presentación">
+        <div class="cover">
+          <div>
+            <p class="eyebrow a" style="--d:.1s">Institución Educativa Javiera Londoño</p>
+            <h1 class="a" style="--d:.25s">Feria MT<br>Proyectos<br>Institucionales</h1>
+            <p class="lede a" style="--d:.5s">Guía del recorrido y de la logística para los grupos de noveno.</p>
+            <div class="meta a" style="--d:.7s"><span class="pill dark">Viernes 30 de octubre de 2026</span><span class="pill mono">8:00 a 11:30 a. m.</span></div>
+          </div>
+          <div class="line">
+            <span class="rail"></span>
+            <div class="stop a" style="--d:.7s"><span class="badge" style="--c:var(--sw)">1</span><div><strong>Software</strong><span class="l">Primer piso</span></div></div>
+            <div class="stop a" style="--d:.95s"><span class="badge" style="--c:var(--aa)">2</span><div><strong>Asistencia Administrativa</strong><span class="l">Primer piso</span></div></div>
+            <div class="stop a" style="--d:1.2s"><span class="badge" style="--c:var(--vl)">3</span><div><strong>Ventas en Línea</strong><span class="l">Segundo piso</span></div></div>
+            <div class="stop a" style="--d:1.45s"><span class="badge" style="--c:var(--cd)">4</span><div><strong>Contenidos Digitales</strong><span class="l">Tercer piso y auditorio</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 · Propósito -->
+      <section class="scene" data-dur="11" data-title="El propósito">
+        <p class="eyebrow a" style="--d:.1s">El propósito</p>
+        <h2 class="a" style="--d:.2s">Una mañana para conocer lo que construyen nuestras Medias Técnicas</h2>
+        <p class="lede a" style="--d:.45s">Los estudiantes de la Media Técnica expondrán los productos y proyectos que han desarrollado en cada salida ocupacional. Los grupos de noveno harán un recorrido guiado para <b>conocer ese trabajo de primera mano</b>.</p>
+        <div class="facts">
+          <div class="fact a" style="--d:.8s"><div class="n">30 <small>de oct.</small></div><p>Fecha de la feria</p></div>
+          <div class="fact a" style="--d:.95s"><div class="n">4</div><p>Estaciones, una por cada salida ocupacional</p></div>
+          <div class="fact a" style="--d:1.1s"><div class="n">5</div><p>Grupos de noveno, organizados en dos bloques</p></div>
+          <div class="fact a" style="--d:1.25s"><div class="n">3 h <small>30 min</small></div><p>De 8:00 a 11:30 a. m., con un descanso</p></div>
+        </div>
+      </section>
+
+      <!-- 3 · Estaciones -->
+      <section class="scene" data-dur="13" data-title="Las estaciones">
+        <p class="eyebrow a" style="--d:.1s">Distribución de los espacios</p>
+        <h2 class="a" style="--d:.2s">Cuatro estaciones en tres pisos</h2>
+        <div class="stations">
+          <div class="st a" style="--d:.5s;--c:var(--sw)"><span class="badge" style="--c:var(--sw)">1</span><span class="floor">Primer piso</span><h3>Software</h3><p>Zona comprendida entre la portería y la biblioteca.</p></div>
+          <div class="st a" style="--d:.7s;--c:var(--aa)"><span class="badge" style="--c:var(--aa)">2</span><span class="floor">Primer piso</span><h3>Asistencia Administrativa</h3><p>Zona de preescolar.</p></div>
+          <div class="st a" style="--d:.9s;--c:var(--vl)"><span class="badge" style="--c:var(--vl)">3</span><span class="floor">Segundo piso</span><h3>Ventas en Línea</h3><p>Zona de las salas de informática.</p></div>
+          <div class="st a" style="--d:1.1s;--c:var(--cd)"><span class="badge" style="--c:var(--cd)">4</span><span class="floor">Tercer piso y auditorio</span><h3>Contenidos Digitales</h3><p>Zona del auditorio, donde termina el recorrido.</p></div>
+        </div>
+        <p class="note a" style="--d:1.5s"><span class="tag">Novedad</span>Los dos grupos de Contenidos Digitales se unen y exponen en una sola estación.</p>
+      </section>
+
+      <!-- 4 · Ruta -->
+      <section class="scene" data-dur="30" data-title="La ruta" data-hook="route">
+        <p class="eyebrow a" style="--d:.1s">Guía del recorrido</p>
+        <h2 class="md a" style="--d:.2s">Una sola ruta, siempre en el mismo orden</h2>
+        <div class="route-grid">
+          <svg class="map a" style="--d:.35s" viewBox="0 0 1180 760" role="img" aria-label="Esquema del recorrido por los tres pisos de la institución">
+            <defs>
+              <pattern id="steps" width="10" height="12" patternUnits="userSpaceOnUse"><rect width="10" height="12" fill="#fff"/><path d="M0 11h10" stroke="#9AA7B6" stroke-width="2"/></pattern>
+            </defs>
+            <!-- Pisos -->
+            <rect class="flr" x="40" y="70" width="900" height="160" rx="12"/>
+            <rect class="flr" x="40" y="300" width="900" height="160" rx="12"/>
+            <rect class="flr" x="40" y="530" width="900" height="160" rx="12"/>
+            <text class="ftag" x="150" y="100">PISO 3</text>
+            <text class="ftag" x="150" y="330">PISO 2</text>
+            <text class="ftag" x="150" y="560">PISO 1</text>
+            <line class="corr" x1="130" y1="195" x2="930" y2="195"/>
+            <line class="corr" x1="130" y1="425" x2="930" y2="425"/>
+            <line class="corr" x1="130" y1="655" x2="930" y2="655"/>
+            <!-- Piso 1 -->
+            <rect class="room" x="150" y="570" width="280" height="62" rx="8" fill="color-mix(in srgb,var(--sw) 12%,#fff)" stroke="color-mix(in srgb,var(--sw) 45%,#fff)"/>
+            <text class="rname" x="165" y="598">Software</text><text class="rsub" x="165" y="621">De la portería a la biblioteca</text>
+            <rect class="room" x="440" y="570" width="160" height="62" rx="8" fill="#F1F3F6" stroke="#D3DAE2"/>
+            <text class="rname" x="455" y="598" style="fill:var(--muted)">Rectoría</text><text class="rsub" x="455" y="621">Pasillo de rectoría</text>
+            <rect class="room" x="610" y="570" width="245" height="62" rx="8" fill="color-mix(in srgb,var(--aa) 12%,#fff)" stroke="color-mix(in srgb,var(--aa) 45%,#fff)"/>
+            <text class="rname" x="624" y="598">Asist. Administrativa</text><text class="rsub" x="624" y="621">Zona de preescolar</text>
+            <!-- Piso 2 -->
+            <rect class="room" x="380" y="340" width="400" height="62" rx="8" fill="color-mix(in srgb,var(--vl) 12%,#fff)" stroke="color-mix(in srgb,var(--vl) 45%,#fff)"/>
+            <text class="rname" x="395" y="368">Ventas en Línea</text><text class="rsub" x="395" y="391">Zona de las salas de informática</text>
+            <!-- Piso 3 -->
+            <rect class="room" x="380" y="110" width="400" height="62" rx="8" fill="color-mix(in srgb,var(--cd) 12%,#fff)" stroke="color-mix(in srgb,var(--cd) 45%,#fff)"/>
+            <text class="rname" x="395" y="138">Contenidos Digitales</text><text class="rsub" x="395" y="161">Tercer piso</text>
+            <!-- Auditorio -->
+            <rect x="965" y="165" width="190" height="170" rx="12" fill="color-mix(in srgb,var(--cd) 12%,#fff)" stroke="color-mix(in srgb,var(--cd) 55%,#fff)" stroke-width="2"/>
+            <text class="rname" x="1060" y="200" text-anchor="middle">Auditorio</text>
+            <text class="rsub" x="1060" y="310" text-anchor="middle">Fin del recorrido</text>
+            <!-- Escaleras -->
+            <rect class="stair" x="62" y="20" width="56" height="668" rx="6"/>
+            <text class="slab" transform="translate(96 470) rotate(-90)">ESCALERAS · PAPELERÍA</text>
+            <rect class="stair" x="866" y="302" width="48" height="386" rx="6"/>
+            <text class="slab" transform="translate(896 640) rotate(-90)">ESC. PREESCOLAR</text>
+            <rect class="stair" x="306" y="72" width="48" height="386" rx="6"/>
+            <text class="slab" transform="translate(336 405) rotate(-90)">ESC. INFORMÁTICA</text>
+            <rect class="stair" x="806" y="150" width="48" height="125" rx="6"/>
+            <text class="slab" x="830" y="295" text-anchor="middle">AL AUDITORIO</text>
+            <!-- Inicio -->
+            <text class="rsub" x="134" y="44" style="font-weight:600;fill:var(--ink)">Salida desde las aulas</text>
+            <!-- Recorrido -->
+            <path id="routeBase" class="base"/>
+            <path id="routeTrail" class="trail"/>
+            <g class="mk" id="mk0" style="--c:var(--sw)"><circle cx="290" cy="655" r="19"/><text x="290" y="656">1</text></g>
+            <g class="mk" id="mk1" style="--c:var(--aa)"><circle cx="750" cy="655" r="19"/><text x="750" y="656">2</text></g>
+            <g class="mk" id="mk2" style="--c:var(--vl)"><circle cx="570" cy="425" r="19"/><text x="570" y="426">3</text></g>
+            <g class="mk" id="mk3" style="--c:var(--cd)"><circle cx="570" cy="195" r="19"/><text x="570" y="196">4</text></g>
+            <g class="mk" id="mk4" style="--c:var(--ink)"><circle cx="1060" cy="250" r="19"/><text x="1060" y="251">✓</text></g>
+            <g id="dot"><circle class="pulse" r="13"/><circle r="13" fill="var(--ink)"/><circle r="5" fill="#fff"/></g>
+            <text class="scale" x="1160" y="748" text-anchor="end">Esquema ilustrativo; no está a escala.</text>
+          </svg>
+          <ol class="steps a" style="--d:.5s" id="steps">
+            <li style="--c:var(--sw)"><span class="badge sm" style="--c:var(--sw)">1</span><div><strong>Bajar al primer piso</strong><p>Desde las aulas, por las escaleras contiguas a la papelería, hasta la estación de Software.</p></div></li>
+            <li><span class="badge sm" style="--c:var(--aa)">2</span><div><strong>Avanzar hacia preescolar</strong><p>Por el pasillo de la rectoría, hasta la estación de Asistencia Administrativa.</p></div></li>
+            <li><span class="badge sm" style="--c:var(--vl)">3</span><div><strong>Subir al segundo piso</strong><p>Por las escaleras contiguas a preescolar, hasta la estación de Ventas en Línea.</p></div></li>
+            <li><span class="badge sm" style="--c:var(--cd)">4</span><div><strong>Subir al tercer piso</strong><p>Por las escaleras contiguas a las salas de informática, hasta la estación de Contenidos Digitales.</p></div></li>
+            <li><span class="badge sm flag"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4h11l-2 4 2 4H5"/></svg></span><div><strong>Cerrar en el auditorio</strong><p>Por las escaleras hacia el auditorio, donde culmina el recorrido.</p></div></li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- 5 · Bloque 1 -->
+      <section class="scene" data-dur="14" data-title="Primer bloque" data-hook="tl">
+        <div class="blk-head">
+          <div>
+            <p class="eyebrow a" style="--d:.1s">Primer bloque</p>
+            <h2 class="a" style="--d:.2s">De 8:00 a 9:30 a. m.</h2>
+            <div class="groups a" style="--d:.4s"><span class="grp">9.1</span><span class="grp">9.2</span><span class="grp">9.3</span></div>
+          </div>
+          <div class="clock a" style="--d:.5s"><div class="lbl">Hora del recorrido</div><div class="t"><span class="tv">8:00</span><small>a. m.</small></div></div>
+        </div>
+        <div class="tl a" style="--d:.6s" data-start="480" data-segs="20,20,20,30">
+          <div class="tl-track"><span class="cursor"></span></div>
+          <div class="tl-labels"></div>
+        </div>
+        <p class="blk-foot a" style="--d:.9s"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M17 11a3 3 0 1 0 0-6M21.5 20a5 5 0 0 0-4-4.9"/></svg>Los tres grupos hacen el recorrido juntos y en el mismo orden. Cada estación tiene un horario fijo.</p>
+      </section>
+
+      <!-- 6 · Descanso -->
+      <section class="scene" data-dur="10" data-title="Descanso" data-hook="ring">
+        <div class="pause">
+          <div class="ring a" style="--d:.15s">
+            <svg viewBox="0 0 300 300"><circle class="bg" cx="150" cy="150" r="125"/><circle class="fg" id="ringFg" cx="150" cy="150" r="125"/></svg>
+            <div class="c"><div><b>20</b><span>minutos</span></div></div>
+          </div>
+          <div>
+            <p class="eyebrow a" style="--d:.2s">Entre bloques</p>
+            <h2 class="a" style="--d:.3s">Descanso</h2>
+            <p class="time mono a" style="--d:.45s">9:30 a 9:50 a. m.</p>
+            <div class="handoff">
+              <div class="card a" style="--d:.7s"><small>9:30 a. m.</small><p>El primer bloque termina su recorrido en el auditorio.</p></div>
+              <span class="arw a" style="--d:.85s"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg></span>
+              <div class="card a" style="--d:1s"><small>9:50 a. m.</small><p>Los grupos 9.4 y 9.5 inician en la estación de Software.</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 · Bloque 2 -->
+      <section class="scene" data-dur="14" data-title="Segundo bloque" data-hook="tl">
+        <div class="blk-head">
+          <div>
+            <p class="eyebrow a" style="--d:.1s">Segundo bloque</p>
+            <h2 class="a" style="--d:.2s">De 9:50 a 11:30 a. m.</h2>
+            <div class="groups a" style="--d:.4s"><span class="grp">9.4</span><span class="grp">9.5</span></div>
+          </div>
+          <div class="clock a" style="--d:.5s"><div class="lbl">Hora del recorrido</div><div class="t"><span class="tv">9:50</span><small>a. m.</small></div></div>
+        </div>
+        <div class="tl a" style="--d:.6s" data-start="590" data-segs="20,20,20,40">
+          <div class="tl-track"><span class="cursor"></span></div>
+          <div class="tl-labels"></div>
+        </div>
+        <p class="blk-foot a" style="--d:.9s"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>Misma ruta y mismo orden. En Contenidos Digitales, este bloque dispone de 40 minutos.</p>
+      </section>
+
+      <!-- 8 · Jornada completa -->
+      <section class="scene" data-dur="13" data-title="La jornada completa">
+        <p class="eyebrow a" style="--d:.1s">La jornada completa</p>
+        <h2 class="md a" style="--d:.2s">De 8:00 a 11:30 a. m., de un vistazo</h2>
+        <div class="gantt a" style="--d:.35s" id="gantt"></div>
+        <div class="legend a" style="--d:.5s">
+          <span><i style="background:var(--ink)"></i>Primer bloque: 9.1, 9.2 y 9.3</span>
+          <span><i class="sw2" style="background:var(--ink);box-shadow:inset 0 0 0 3px rgba(255,255,255,.45)"></i>Segundo bloque: 9.4 y 9.5</span>
+          <span><i style="background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--pause) 55%,transparent) 0 5px,color-mix(in srgb,var(--pause) 20%,transparent) 5px 10px)"></i>Descanso</span>
+        </div>
+      </section>
+
+      <!-- 9 · Recomendaciones -->
+      <section class="scene" data-dur="14" data-title="Recomendaciones">
+        <p class="eyebrow a" style="--d:.1s">Recomendaciones</p>
+        <h2 class="a" style="--d:.2s">Para que el recorrido funcione</h2>
+        <div class="recs">
+          <div class="rec a" style="--d:.5s"><span class="ic"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="18" r="2.2"/><circle cx="19" cy="6" r="2.2"/><path d="M7 18h6a4 4 0 0 0 0-8h-2a4 4 0 0 1 0-8"/></svg></span><div><h3>Seguir el orden establecido</h3><p>Cada grupo recorre las estaciones en la secuencia indicada, sin adelantarse ni devolverse.</p></div></div>
+          <div class="rec a" style="--d:.7s"><span class="ic"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></span><div><h3>Respetar los tiempos</h3><p>Los horarios de cada estación son fijos; cumplirlos garantiza que todos los grupos alcancen a ver todas las exposiciones.</p></div></div>
+          <div class="rec a" style="--d:.9s"><span class="ic"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg></span><div><h3>Cuidar los espacios</h3><p>Las instalaciones de la institución y los materiales de cada exposición merecen todo nuestro cuidado.</p></div></div>
+          <div class="rec a" style="--d:1.1s"><span class="ic"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.8L12 3Z"/></svg></span><div><h3>Comportamiento ejemplar</h3><p>Esperamos de todos los grupos una actitud respetuosa y atenta con quienes exponen.</p></div></div>
+        </div>
+      </section>
+
+      <!-- 10 · Ficha resumen -->
+      <section class="scene" data-dur="16" data-title="Ficha resumen">
+        <p class="eyebrow a" style="--d:.1s">Ficha resumen para coordinación y docentes</p>
+        <h2 class="md a" style="--d:.2s">Todo el cronograma en una tabla</h2>
+        <table class="sheet a" style="--d:.4s">
+          <thead><tr><th>Estación</th><th>Ubicación</th><th>Primer bloque<b>9.1, 9.2 y 9.3</b></th><th>Segundo bloque<b>9.4 y 9.5</b></th></tr></thead>
+          <tbody>
+            <tr><td><span class="stn"><span class="badge sm" style="--c:var(--sw)">1</span>Software</span></td><td class="loc">Primer piso · de la portería a la biblioteca</td><td class="hr" data-l="Primer bloque">8:00 – 8:20</td><td class="hr" data-l="Segundo bloque">9:50 – 10:10</td></tr>
+            <tr><td><span class="stn"><span class="badge sm" style="--c:var(--aa)">2</span>Asistencia Administrativa</span></td><td class="loc">Primer piso · zona de preescolar</td><td class="hr" data-l="Primer bloque">8:20 – 8:40</td><td class="hr" data-l="Segundo bloque">10:10 – 10:30</td></tr>
+            <tr><td><span class="stn"><span class="badge sm" style="--c:var(--vl)">3</span>Ventas en Línea</span></td><td class="loc">Segundo piso · salas de informática</td><td class="hr" data-l="Primer bloque">8:40 – 9:00</td><td class="hr" data-l="Segundo bloque">10:30 – 10:50</td></tr>
+            <tr><td><span class="stn"><span class="badge sm" style="--c:var(--cd)">4</span>Contenidos Digitales</span></td><td class="loc">Tercer piso y auditorio</td><td class="hr" data-l="Primer bloque">9:00 – 9:30</td><td class="hr" data-l="Segundo bloque">10:50 – 11:30</td></tr>
+            <tr class="brk"><td colspan="2">Descanso entre bloques</td><td colspan="2" class="hr">9:30 – 9:50</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 11 · Cierre -->
+      <section class="scene end" data-dur="8" data-title="Cierre">
+        <div class="stripe end-stripe a" style="--d:.1s"><i style="background:var(--sw);animation-delay:.2s"></i><i style="background:var(--aa);animation-delay:.35s"></i><i style="background:var(--vl);animation-delay:.5s"></i><i style="background:var(--cd);animation-delay:.65s"></i></div>
+        <h1 class="a" style="--d:.3s;font-size:132px">Gracias por<br>acompañar el recorrido</h1>
+        <p class="lede a" style="--d:.6s">Feria MT Proyectos Institucionales · Institución Educativa Javiera Londoño · 30 de octubre de 2026</p>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="bar-ctl" role="toolbar" aria-label="Controles de la animación">
+    <button class="btn main" id="play" aria-label="Pausar"></button>
+    <button class="btn" id="prev" aria-label="Escena anterior"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <button class="btn" id="next" aria-label="Escena siguiente"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    <div class="chapters" id="chapters"></div>
+    <div class="now"><b id="chapName">Presentación</b><span id="elapsed">0:00 / 0:00</span></div>
+    <button class="btn hide-s" id="restart" aria-label="Ver desde el inicio"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+    <button class="btn hide-s" id="fs" aria-label="Pantalla completa"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const scenes=[...document.querySelectorAll('.scene')];
+  const stage=document.getElementById('stage'), screen=document.getElementById('screen');
+  const durs=scenes.map(s=>+s.dataset.dur);
+  const total=durs.reduce((a,b)=>a+b,0);
+  const ST={sw:{n:'Software',p:'Primer piso'},aa:{n:'Asistencia Administrativa',p:'Primer piso'},vl:{n:'Ventas en Línea',p:'Segundo piso'},cd:{n:'Contenidos Digitales',p:'Tercer piso y auditorio'}};
+  const KEYS=['sw','aa','vl','cd'];
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const fmt=m=>{m=Math.round(m);return Math.floor(m/60)+':'+String(m%60).padStart(2,'0');};
+  const fmtS=s=>{s=Math.floor(s);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+
+  let PT=null;
+  function fit(){
+    const W=screen.clientWidth,H=screen.clientHeight,pt=H>W*1.1;
+    if(pt!==PT){PT=pt;stage.classList.toggle('pt',pt);stage.style.width=(pt?900:1920)+'px';stage.style.height=(pt?1600:1080)+'px';}
+    const sw=pt?900:1920,sh=pt?1600:1080,f=Math.min(W/sw,H/sh);
+    stage.style.transform=`translate(${(W-sw*f)/2}px,${(H-sh*f)/2}px) scale(${f})`;
+  }
+  if(window.ResizeObserver)new ResizeObserver(fit).observe(screen);else addEventListener('resize',fit);
+  fit();
+
+  /* Líneas de tiempo de los bloques */
+  document.querySelectorAll('.tl').forEach(tl=>{
+    const start=+tl.dataset.start, segs=tl.dataset.segs.split(',').map(Number);
+    const track=tl.querySelector('.tl-track'), labels=tl.querySelector('.tl-labels');
+    let acc=0; tl._segs=[];
+    segs.forEach((d,i)=>{
+      const k=KEYS[i];
+      const seg=document.createElement('div');seg.className='seg';seg.style.flex=d+' 1 0';seg.style.setProperty('--c',`var(--${k})`);
+      seg.innerHTML=`<i></i><span class="seg-n">${i+1}</span>`;track.appendChild(seg);
+      const lab=document.createElement('div');lab.className='lab';lab.style.flex=d+' 1 0';lab.style.setProperty('--c',`var(--${k})`);
+      lab.innerHTML=`<b class="mono">${fmt(start+acc)} – ${fmt(start+acc+d)}</b><strong>${ST[k].n}</strong><span>${ST[k].p} · ${d} min</span>`;labels.appendChild(lab);
+      tl._segs.push({seg,lab,a:acc,d});acc+=d;
+    });
+    tl._start=start;tl._total=acc;
+  });
+
+  /* Diagrama de la jornada */
+  (function(){
+    const G=document.getElementById('gantt'), S0=480, SPAN=210;
+    const B1=[[480,20],[500,20],[520,20],[540,30]], B2=[[590,20],[610,20],[630,20],[650,40]];
+    const pct=m=>((m-S0)/SPAN*100)+'%';
+    let lab='<div class="g-labels">', plot='<div class="g-plot">';
+    for(let m=S0;m<=S0+SPAN;m+=30)plot+=`<span class="g-tick" style="left:${pct(m)}"></span>`;
+    plot+=`<div class="g-band" style="left:${pct(570)};width:${20/SPAN*100}%"><b>Descanso</b></div>`;
+    KEYS.forEach((k,i)=>{
+      lab+=`<div class="g-lab"><span class="badge sm" style="--c:var(--${k})">${i+1}</span>${ST[k].n}</div>`;
+      plot+=`<div class="g-row"><span class="bar" style="--c:var(--${k});--d:${.6+i*.18}s;left:${pct(B1[i][0])};width:${B1[i][1]/SPAN*100}%">9.1 a 9.3</span><span class="bar b2" style="--c:var(--${k});--d:${1.5+i*.18}s;left:${pct(B2[i][0])};width:${B2[i][1]/SPAN*100}%">9.4 y 9.5</span></div>`;
+    });
+    plot+='<div class="g-axis">';
+    for(let m=S0;m<=S0+SPAN;m+=30)plot+=`<span style="left:${pct(m)}">${fmt(m)}</span>`;
+    plot+='</div></div>';lab+='</div>';
+    G.innerHTML=lab+plot;
+  })();
+
+  /* Ruta animada */
+  const P=[[90,40],[90,655],[290,655],[750,655],[890,655],[890,425],[570,425],[330,425],[330,195],[570,195],[830,195],[830,250],[1060,250]];
+  const STOPS=[2,3,6,9,12];
+  const cum=[0];for(let i=1;i<P.length;i++)cum[i]=cum[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);
+  const L=cum[cum.length-1];
+  const d='M'+P.map(p=>p.join(' ')).join(' L ');
+  const base=document.getElementById('routeBase'), trail=document.getElementById('routeTrail'), dot=document.getElementById('dot');
+  base.setAttribute('d',d);trail.setAttribute('d',d);trail.style.strokeDasharray=L;trail.style.strokeDashoffset=L;
+  const V=200,PAUSE=2.4,T0=1.6,sched=[];
+  (function(){let tt=T0,prev=0;STOPS.forEach((si,k)=>{const l0=cum[prev],l1=cum[si],dd=(l1-l0)/V;sched.push({a:tt,b:tt+dd,l0,l1,k});tt+=dd;if(k<STOPS.length-1)tt+=PAUSE;prev=si;});})();
+  const ease=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+  function routeState(t){
+    if(t<=T0)return{l:0,active:0,reached:0};
+    for(const s of sched){
+      if(t<s.a)return{l:s.l0,active:s.k-1,reached:s.k};
+      if(t<=s.b)return{l:s.l0+(s.l1-s.l0)*ease((t-s.a)/(s.b-s.a)),active:s.k,reached:s.k};
+    }
+    return{l:L,active:STOPS.length-1,reached:STOPS.length};
+  }
+  function pointAt(l){for(let i=1;i<P.length;i++){if(l<=cum[i]){const u=(l-cum[i-1])/((cum[i]-cum[i-1])||1);return[P[i-1][0]+(P[i][0]-P[i-1][0])*u,P[i-1][1]+(P[i][1]-P[i-1][1])*u];}}return P[P.length-1];}
+  const marks=[0,1,2,3,4].map(i=>document.getElementById('mk'+i));
+  const stepLis=[...document.querySelectorAll('#steps li')];
+  const ring=document.getElementById('ringFg'), RC=2*Math.PI*125;ring.style.strokeDasharray=RC;ring.style.strokeDashoffset=RC;
+
+  const hooks={
+    route(s,t){
+      const st=routeState(t),pt=pointAt(st.l);
+      trail.style.strokeDashoffset=L-st.l;
+      dot.setAttribute('transform',`translate(${pt[0]} ${pt[1]})`);
+      marks.forEach((m,i)=>m.classList.toggle('hit',i<st.reached));
+      stepLis.forEach((li,i)=>{li.classList.toggle('on',i===st.active);li.classList.toggle('done',i<st.active);});
+    },
+    tl(s,t){
+      const tl=s.querySelector('.tl'),p=clamp((t-1.4)/8.5,0,1),m=p*tl._total;
+      const cur=tl.querySelector('.cursor');if(PT){cur.style.top=(p*100)+'%';cur.style.left='';}else{cur.style.left=(p*100)+'%';cur.style.top='';}
+      s.querySelector('.tv').textContent=fmt(tl._start+m);
+      tl._segs.forEach(o=>{const f=clamp((m-o.a)/o.d,0,1);o.seg.style.setProperty('--f',f);const lit=m>o.a||(p>0&&o.a===0);o.seg.classList.toggle('lit',f>0.02);o.lab.classList.toggle('lit',lit||f>0);});
+    },
+    ring(s,t){const p=clamp((t-.8)/(durs[idx]-2.2),0,1);ring.style.strokeDashoffset=RC*(1-p);}
+  };
+
+  /* Reproductor */
+  const chapWrap=document.getElementById('chapters');
+  scenes.forEach((s,k)=>{const b=document.createElement('button');b.className='chap';b.style.flexGrow=durs[k];b.title=s.dataset.title;b.setAttribute('aria-label','Ir a: '+s.dataset.title);b.innerHTML='<i></i>';b.addEventListener('click',()=>{go(k);setPlaying(true);});chapWrap.appendChild(b);});
+  const chaps=[...chapWrap.children];
+  const playBtn=document.getElementById('play');
+  const IC_PAUSE='<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+  const IC_PLAY='<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5L8 5.5Z"/></svg>';
+  let idx=0,t=0,playing=true,last=performance.now();
+
+  function go(n){
+    idx=clamp(n,0,scenes.length-1);t=0;
+    scenes.forEach((s,k)=>{if(k===idx){s.classList.remove('on');void s.offsetWidth;s.classList.add('on');}else s.classList.remove('on');});
+    document.getElementById('sceneNo').textContent=String(idx+1).padStart(2,'0')+' / '+String(scenes.length).padStart(2,'0');
+    document.getElementById('chapName').textContent=scenes[idx].dataset.title;
+  }
+  function setPlaying(p){
+    if(p&&idx===scenes.length-1&&t>=durs[idx])go(0);
+    playing=p;stage.classList.toggle('paused',!p);
+    playBtn.innerHTML=p?IC_PAUSE:IC_PLAY;playBtn.setAttribute('aria-label',p?'Pausar':'Reproducir');
+  }
+  function render(){
+    let before=0;for(let k=0;k<idx;k++)before+=durs[k];
+    chaps.forEach((c,k)=>{c.style.setProperty('--f',k<idx?1:k===idx?clamp(t/durs[k],0,1):0);c.classList.toggle('cur',k===idx);});
+    document.getElementById('elapsed').textContent=fmtS(before+t)+' / '+fmtS(total);
+    const h=scenes[idx].dataset.hook;if(h&&hooks[h])hooks[h](scenes[idx],t);
+  }
+  function loop(now){
+    const dt=Math.min(.1,(now-last)/1000);last=now;
+    if(playing){t+=dt;if(t>=durs[idx]){if(idx<scenes.length-1)go(idx+1);else{t=durs[idx];setPlaying(false);}}}
+    render();requestAnimationFrame(loop);
+  }
+  playBtn.addEventListener('click',()=>setPlaying(!playing));
+  document.getElementById('prev').addEventListener('click',()=>go(idx-1));
+  document.getElementById('next').addEventListener('click',()=>go(idx+1));
+  document.getElementById('restart').addEventListener('click',()=>{go(0);setPlaying(true);});
+  document.getElementById('fs').addEventListener('click',()=>{try{const el=document.getElementById('app');if(!document.fullscreenElement){const r=el.requestFullscreen&&el.requestFullscreen();if(r&&r.catch)r.catch(()=>{});}else{const r=document.exitFullscreen();if(r&&r.catch)r.catch(()=>{});}}catch(e){}});
+  document.addEventListener('keydown',e=>{
+    if(e.key===' '||e.key==='k'){e.preventDefault();setPlaying(!playing);}
+    else if(e.key==='ArrowRight'){go(idx+1);}
+    else if(e.key==='ArrowLeft'){go(idx-1);}
+    else if(e.key==='Home'){go(0);}
+  });
+  let tx=null,ty=0;
+  screen.addEventListener('touchstart',e=>{tx=e.changedTouches[0].clientX;ty=e.changedTouches[0].clientY;},{passive:true});
+  screen.addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;tx=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))go(idx+(dx<0?1:-1));},{passive:true});
+  window.__seek=(n,tt)=>{go(n);t=tt;setPlaying(false);render();};
+  go(0);setPlaying(true);requestAnimationFrame(loop);
+})();
+</script>
+
+</body>
+</html>
