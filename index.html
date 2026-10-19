@@ -599,7 +599,7 @@
   const L=cum[cum.length-1];
   const d='M'+P.map(p=>p.join(' ')).join(' L ');
   const base=document.getElementById('routeBase'), trail=document.getElementById('routeTrail'), dot=document.getElementById('dot');
-  base.setAttribute('d',d);trail.setAttribute('d',d);trail.style.strokeDasharray=L;trail.style.strokeDashoffset=L;
+  base.setAttribute('d',d);trail.setAttribute('d',d);trail.setAttribute('stroke-dasharray',L);trail.setAttribute('stroke-dashoffset',L);
   const V=200,PAUSE=2.4,T0=1.6,sched=[];
   (function(){let tt=T0,prev=0;STOPS.forEach((si,k)=>{const l0=cum[prev],l1=cum[si],dd=(l1-l0)/V;sched.push({a:tt,b:tt+dd,l0,l1,k});tt+=dd;if(k<STOPS.length-1)tt+=PAUSE;prev=si;});})();
   const ease=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
@@ -614,12 +614,12 @@
   function pointAt(l){for(let i=1;i<P.length;i++){if(l<=cum[i]){const u=(l-cum[i-1])/((cum[i]-cum[i-1])||1);return[P[i-1][0]+(P[i][0]-P[i-1][0])*u,P[i-1][1]+(P[i][1]-P[i-1][1])*u];}}return P[P.length-1];}
   const marks=[0,1,2,3,4].map(i=>document.getElementById('mk'+i));
   const stepLis=[...document.querySelectorAll('#steps li')];
-  const ring=document.getElementById('ringFg'), RC=2*Math.PI*125;ring.style.strokeDasharray=RC;ring.style.strokeDashoffset=RC;
+  const ring=document.getElementById('ringFg'), RC=2*Math.PI*125;ring.setAttribute('stroke-dasharray',RC);ring.setAttribute('stroke-dashoffset',RC);
 
   const hooks={
     route(s,t){
       const st=routeState(t),pt=pointAt(st.l);
-      trail.style.strokeDashoffset=L-st.l;
+      trail.setAttribute('stroke-dashoffset',L-st.l);
       dot.setAttribute('transform',`translate(${pt[0]} ${pt[1]})`);
       marks.forEach((m,i)=>m.classList.toggle('hit',i<st.reached));
       stepLis.forEach((li,i)=>{li.classList.toggle('on',i===st.active);li.classList.toggle('done',i<st.active);});
@@ -630,7 +630,7 @@
       s.querySelector('.tv').textContent=fmt(tl._start+m);
       tl._segs.forEach(o=>{const f=clamp((m-o.a)/o.d,0,1);o.seg.style.setProperty('--f',f);const lit=m>o.a||(p>0&&o.a===0);o.seg.classList.toggle('lit',f>0.02);o.lab.classList.toggle('lit',lit||f>0);});
     },
-    ring(s,t){const p=clamp((t-.8)/(durs[idx]-2.2),0,1);ring.style.strokeDashoffset=RC*(1-p);}
+    ring(s,t){const p=clamp((t-.8)/(durs[idx]-2.2),0,1);ring.setAttribute('stroke-dashoffset',RC*(1-p));}
   };
 
   /* Reproductor */
