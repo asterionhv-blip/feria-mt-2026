@@ -4,3 +4,4 @@ Institución Educativa Javiera Londoño · 30 de octubre de 2026.
 
 - `index.html`: animación del recorrido y la logística para coordinación y docentes.
 - `invitacion-feria-mt-2026.png`: invitación para egresados y padres de familia.
+- `resumen-recorrido-feria-mt-2026.png` y `.pdf`: resumen del cronograma y la ruta para docentes.
